@@ -1,0 +1,82 @@
+ <!doctype html>
+<html lang="en">
+<head>
+    <title>Login</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="wrapper d-flex align-items-stretch">
+    <!-- Page Content  -->
+    <div id="content" class="p-4 p-md-5">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="#">Login</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <h2>Login Page</h2>
+        <div class="alert text-center alert-danger border-0" style="display: none" role="alert">
+            <h2 class="m-0 p-0"></h2>
+        </div>
+        <form method="POST" action="./php/login.php">
+            <div class="form-group mt-3">
+                <label for="email">User Name</label>
+                <input type="email" class="form-control mt-1" id="email" placeholder="Enter name" name="email" required>
+            </div>
+            <div class="form-group mt-3">
+                <label for="pwd">password</label>
+                <input type="password" class="form-control mt-1" id="pwd" placeholder="Enter password" name="password"
+                       required>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.alert').hide();
+        $('form').submit(function (e) {
+            e.preventDefault();
+            loginUser();
+        });
+    });
+    async function loginUser() {
+        const form = document.querySelector('form');
+        if (!form.checkValidity()) return;
+        // formData
+        const formData = new FormData(form);
+        // fetch
+        const response = await fetch('./php/login.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        if (response.ok) {
+            // store users details in storage
+            localStorage.setItem('user', JSON.stringify(result));
+            window.location.href = './index.html';
+        } else {
+            $('.alert').show();
+            $('.alert h2').text(result.message);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>User Details</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="wrapper d-flex align-items-stretch">
+    <nav id="sidebar">
+        <div class="p-4 pt-5">
+            <a href="#" class="img logo rounded-circle mb-5" ></a>
+            <ul class="list-unstyled components mb-5">
+                <li class="nav-item">
+                    <a href="index.html">Home Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link profile" href="">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a href="create-user.html" class="add-user">Add User</a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Content  -->
+    <div id="content" class="p-4 p-md-5">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+
+                <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                    <i class="fa fa-bars"></i>
+                    <span class="sr-only">Toggle Menu</span>
+                </button>
+                <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link profile" href="">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link add-user" href="create-user.html">Add User</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="about.html">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link logout" href="#">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="alert text-center alert-success border-0" style="display: none" role="alert">
+            <h2 class="m-0 p-0"></h2>
+        </div>
+        <div class="alert text-center alert-danger border-0" style="display: none" role="alert">
+            <h2 class="m-0 p-0"></h2>
+        </div>
+        <h2>Update User</h2>
+        <div id="spinner" class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+            </div>
+        </div>
+
+        <div id='user-details' class="row" style="display: none">
+            <div class="col-md-4 offset-md-4 text-center">
+                <img height="150" width="150" id="user-avatar" alt="Avatar" class="avatar" style="border-radius: 50%">
+                <form method="POST" action="./php/update_user.php">
+                    <input name="userId" id="userId" type="text" hidden="true">
+                    <div class="form-group mt-3">
+                        <label for="nameInput" class="w-100 text-left">Name</label>
+                        <input type="text" class="form-control mt-1" id="nameInput" name="name" placeholder="Enter name"
+                               required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="emailInput" class="w-100 text-left">Email</label>
+                        <input type="email" class="form-control mt-1" id="emailInput" name="email"
+                               placeholder="Enter email"
+                               required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="emailInput" class="w-100 text-left">Password</label>
+                        <input type="password" class="form-control mt-1" id="passwordInput" name="password"
+                               placeholder="Enter Password">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="avatar" class="form-label w-100 text-left">Avatar</label>
+                        <br>
+                        <input class="w-100 text-left" type="file" id="avatar" name="avatar"/>
+                    </div>
+                    <button type="button" onclick="updateUser()" class="btn btn-primary mt-3 w-100">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    // Get the input element for the avatar file and the preview image element
+    const avatarInput = document.getElementById('avatar');
+    const avatarPreview = document.getElementById('user-avatar');
+
+    // Add an event listener for when the user selects an image
+    avatarInput.addEventListener('change', (event) => {
+        // Get the selected image file
+        const file = event.target.files[0];
+
+        // Create a FileReader object to read the file
+        const reader = new FileReader();
+
+        // Set the FileReader object to update the preview image element when it's done reading the file
+        reader.onload = (event) => {
+            avatarPreview.src = event.target.result;
+            avatarPreview.classList.remove('d-none');
+        };
+
+        // Read the image file as a data URL
+        reader.readAsDataURL(file);
+    });
+
+    async function getUserDetails() {
+        // get id from url params
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        if (user.is_admin == 0 && user.id != id) {
+            window.location.href = './403.html'
+        }
+        const res = await fetch(`./php/get_user_by_id.php?id=${id}`);
+        if (res.status === 401) {
+            window.location.href = './login.html'
+        }
+        if (res.status === 404) {
+            window.location.href = './404.html'
+        }
+        const data = await res.json();
+        updateHTML(data)
+    }
+
+    async function updateUser() {
+        const form = document.querySelector('form');
+        if (!form.checkValidity()) return;
+        const formData = new FormData(form);
+        if (!formData.get('avatar').name) {
+            formData.delete('avatar')
+        }
+        const res = await fetch('./php/update_user.php', {
+            method: "POST",
+            body: formData
+        })
+        if (res.status === 401) {
+            window.location.href = './login.html'
+        }
+        const data = await res.json();
+        console.log(data)
+        if (data.error) {
+            $('.alert-danger').show();
+            $('.alert-danger h2').text(data.error);
+        } else {
+            $('.alert-success').show();
+            $('.alert-success h2').text('User updated successfully');
+            // if user updated his profile.
+
+            if (user.id === data.id) {
+                localStorage.setItem('user', JSON.stringify(data));
+            }
+        }
+    }
+
+    function updateHTML(user) {
+        document.querySelector('#user-details').style.display = 'block'
+        document.querySelector('#spinner').style.opacity = 0
+        document.querySelector('#user-avatar').src = `./php/${user.avatar}`;
+        document.querySelector('#userId').value = user.id;
+        document.querySelector('#nameInput').value = user.name;
+        document.querySelector('#emailInput').value = user.email;
+    }
+
+    getUserDetails();
+
+</script>
+</body>
+</html>

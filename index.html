@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="wrapper d-flex align-items-stretch">
+    <nav id="sidebar">
+        <div class="p-4 pt-5">
+            <a href="#" class="img logo rounded-circle mb-5"></a>
+            <ul class="list-unstyled components mb-5">
+                <li>
+                    <a href="index.html">Home Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link profile" href="" class="profile">Profile</a>
+                </li>
+                <li>
+                    <a href="create-user.html" class="add-user">Add User</a>
+                </li>
+                <li>
+                    <a href="about.html">About</a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Content  -->
+    <div id="content" class="p-4 p-md-5">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+
+                <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                    <i class="fa fa-bars"></i>
+                    <span class="sr-only">Toggle Menu</span>
+                </button>
+                <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link profile" href="">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link add-user" href="create-user.html">Add User</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="about.html">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link logout" href="#">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="alert text-center alert-warning border-0" style="display: none" role="alert">
+            <h2 class="m-0 p-0">You are not an Admin, You don't have the privilage to view users</h2>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="delete-user-modal" tabindex="-1" role="dialog"
+             aria-labelledby="delete-user-modalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Are you sure you want to delete the
+                            user?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Deleting the user will remove it from the system.
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary w-50" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary w-50" id="delete-user-btn">Delete User</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 id="table-title">User Records</h2>
+        <div id="spinner" class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+            </div>
+        </div>
+        <table style="display: none" class="table table-striped">
+            <thead>
+            <tr>
+                <th>Avatar</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody id="userTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+    // Fetch the array of users from the API
+    fetch('./php/get_users.php')
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = './login.html'
+            }
+            return response.json()
+        })
+        .then(users => {
+            // Populate the table with user records
+            const tableBody = document.getElementById('userTableBody');
+            document.querySelector('#spinner').style.opacity = '0';
+            $('.table').show();
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+            if (storedUser.is_admin == 1) {
+                users.forEach(user => {
+                    if (storedUser.id == user.id) {
+                        return;
+                    }
+                    const tr = document.createElement('tr');
+                    tr.id = `tr-${user.id}-user`
+                    tr.innerHTML = `
+						<td><img height="50" width="50" src=./php/${user.avatar}></td>
+						<td>${user.name}</td>
+						<td>${user.email}</td>
+						<td>
+						    ${storedUser.is_admin == 1 ? `<a class="btn btn-sm btn-primary edit-button" href="./edit-user.html?id=${user.id}">Edit</a> <button class="btn btn-sm btn-danger delete-button" data-id="${user.id}">Delete</button>` : ''}
+						</td>
+					`;
+                    tableBody.appendChild(tr);
+                });
+                const deleteButtons = document.querySelectorAll('.delete-button');
+                deleteButtons.forEach(deleteButton => {
+                    deleteButton.addEventListener('click', () => {
+                        $('#delete-user-modal').modal('show')
+                        const userId = deleteButton.getAttribute('data-id');
+                        $('#delete-user-btn').click(function () {
+                            deleteUser(userId);
+                        })
+                    });
+                });
+            } else {
+                // hide table
+                document.querySelector('.table').style.display = 'none';
+                document.querySelector('#table-title').style.display = 'none';
+                // show alert
+                document.querySelector('.alert').style.display = 'block';
+            }
+
+        })
+        .catch(error => console.error(error));
+
+    async function deleteUser(id) {
+        document.querySelector('#delete-user-btn').setAttribute('disabled', true)
+        $('#delete-user-btn').html('<div class="spinner-border spinner-border-sm"></div>');
+        const res = await fetch(`./php/delete_user.php?id=${id}`);
+        if (res.ok) {
+            $('#delete-user-modal').modal('hide');
+            document.querySelector(`#tr-${id}-user`).remove();
+            document.querySelector('#delete-user-btn').removeAttribute('disabled')
+            $('#delete-user-btn').html('Remove');
+        } else if (res.status === 401) {
+            window.location.href = './login.html'
+        }
+    }
+
+</script>
+</body>
+</html>

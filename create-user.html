@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Create User</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="wrapper d-flex align-items-stretch">
+    <nav id="sidebar">
+        <div class="p-4 pt-5">
+            <a href="#" class="img logo rounded-circle mb-5"></a>
+            <ul class="list-unstyled components mb-5">
+                <li>
+                    <a href="index.html">Home Page</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link profile" href="" >Profile</a>
+                </li>
+                <li>
+                    <a href="create-user.html" class="add-user">Add User</a>
+                </li>
+                <li>
+                    <a href="about.html">About</a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Page Content  -->
+    <div id="content" class="p-4 p-md-5">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+
+                <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                    <i class="fa fa-bars"></i>
+                    <span class="sr-only">Toggle Menu</span>
+                </button>
+                <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link profile" href="">Profile</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link add-user" href="create-user.html">Add User</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="about.html">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link logout" href="#">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <h2>Create User</h2>
+        <div class="alert text-center alert-success border-0" style="display: none" role="alert">
+            <h2 class="m-0 p-0"></h2>
+        </div>
+        <div class="alert text-center alert-danger border-0" style="display: none" role="alert">
+            <h2 class="m-0 p-0"></h2>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="d-flex justify-content-center align-items-center">
+                    <img src="https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236__340.png" height="150"
+                         width="150" id="avatar-preview" class="mt-2 avatar" src="#"
+                         alt="Avatar Preview">
+                </div>
+                <!-- Form for creating new user -->
+                <form id="create-user-form" enctype="multipart/form-data">
+                    <!-- Avatar upload -->
+                    <div class="mb-3">
+                        <label for="avatar" class="form-label">Avatar</label>
+                        <br>
+                        <input type="file" id="avatar" name="image"/>
+                    </div>
+
+                    <!-- Name input -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <!-- Email input -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="mb-3 ml-4">
+                        <input class="form-check-input" name="is_admin" type="checkbox" value="" id="isAdmin">
+                        <label for="isAdmin" class="form-label">Is Admin</label>
+                    </div>
+
+                    <button type="button" onclick="createUser(this)" class="btn btn-primary w-100">Create User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+
+    // Get the input element for the avatar file and the preview image element
+    const avatarInput = document.getElementById('avatar');
+    const avatarPreview = document.getElementById('avatar-preview');
+
+    // Add an event listener for when the user selects an image
+    avatarInput.addEventListener('change', (event) => {
+        // Get the selected image file
+        const file = event.target.files[0];
+
+        // Create a FileReader object to read the file
+        const reader = new FileReader();
+
+        // Set the FileReader object to update the preview image element when it's done reading the file
+        reader.onload = (event) => {
+            avatarPreview.src = event.target.result;
+            avatarPreview.classList.remove('d-none');
+        };
+
+        // Read the image file as a data URL
+        reader.readAsDataURL(file);
+    });
+
+    async function createUser(btn) {
+        btn.disabled = true;
+        btn.innerHTML = 'Creating User...';
+        // get form
+        const form = document.getElementById('create-user-form');
+        // trigger form validation
+        form.reportValidity();
+        if (!form.reportValidity()) {
+            btn.disabled = false;
+            btn.innerHTML = 'Create User';
+            return
+        }
+        ;
+        // set formData
+        const formData = new FormData(form);
+        // check for is_admin
+        if (document.getElementById('isAdmin').checked) {
+            formData.set('is_admin', 1)
+        } else {
+            formData.set('is_admin', 0)
+        }
+        // send update request
+        const res = await fetch('./php/create_user.php', {
+            method: 'POST',
+            body: formData
+        });
+        if (res.status === 401) {
+            window.location.href = './login.html'
+        }
+        const data = await res.json();
+        if (data.error) {
+            $('.alert-danger').show()
+            $('.alert-danger h2').text(data.error)
+        } else {
+            $('.alert-success').show()
+            $('.alert-success h2').text(data.error)
+            window.location.href = './index.html'
+        }
+        btn.disabled = false;
+        btn.innerHTML = 'Create User';
+    }
+</script>
+</body>
+</html>
